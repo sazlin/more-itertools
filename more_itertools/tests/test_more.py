@@ -160,3 +160,23 @@ def test_one():
     numbers = count()
     assert_raises(ValueError, one, numbers)  # burn 0 and 1
     eq_(next(numbers), 2)
+
+
+class TestCollapse(TestCase):
+    def test_collapse(self):
+        l = [[1], 2, [[3], 4], [[[5]]]]
+        eq_(list(collapse(l)), [1, 2, 3, 4, 5])
+    def test_collapse_to_string(self):
+        l = [["s1"], "s2", [["s3"], "s4"], [[["s5"]]]]
+        eq_(list(collapse(l)), ["s1", "s2", "s3", "s4", "s5"])
+    def test_collapse_flatten(self):
+        l = [[1], [2], [[3], 4], [[[5]]]]
+        eq_(list(collapse(l, levels=1)), list(flatten(l)))
+    def test_collapse_to_level(self):
+        l = [[1], 2, [[3], 4], [[[5]]]]
+        eq_(list(collapse(l, levels=2)), [1, 2, 3, 4, [5]])
+        eq_(list(collapse(collapse(l, levels=1), levels=1)),
+            list(collapse(l, levels=2)))
+    def test_collapse_to_list(self):
+        l = (1, [2], (3, [4, (5,)]))
+        eq_(list(collapse(l, basetype=list)), [1, [2], 3, [4, (5,)]])
