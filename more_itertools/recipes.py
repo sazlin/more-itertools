@@ -157,8 +157,10 @@ def flatten(listOfLists):
 def collapse(iterable, basetype=basestring, levels=None):
     """Flatten an iterable containing some iterables (themselves containing
     some iterables, etc.) into non-iterable types, strings, elements
-    matching ``isinstance(element, basetype)``, and elements that are
-    ``levels`` levels down.
+    matching ``isinstance(iterable, basetype)``, and elements that are
+    ``levels`` levels down. If levels=1 then flatten() is used to speed things
+    up. If flatten() runs into a non-iterable then _collapse() will be used for
+    the remainder of the sequence.
 
     >>> list(collapse([[1], [2], [3, 4], [5]]))
     [1, 2, 3, 4, 5]
@@ -175,7 +177,6 @@ def collapse(iterable, basetype=basestring, levels=None):
     """
     #flatten() is really fast, so use it if possible
     gen = None
-    i = 0
     if levels == 1:
         if not isinstance(iterable, basetype):
             gen = flatten(iterable)
@@ -184,12 +185,12 @@ def collapse(iterable, basetype=basestring, levels=None):
                     yield next
                 return
             except TypeError:
-                #flatten can't handle this iterable anymore, so let _collapse try
+                # flatten can't handle this iterable anymore,
+                # so use _collapse() for the remainder
                 pass
     gen = _collapse(iterable, basetype=basetype, levels=levels)
     for next in gen:
         yield next
-
 
 
 def _collapse(iterable, basetype=basestring, levels=None):
@@ -198,8 +199,8 @@ def _collapse(iterable, basetype=basestring, levels=None):
             # fast way to confirm if iterable is actually an iterable
             iter(iterable)
         except TypeError:
-            #iterable isn't actually an iterable, so yield it and return
-            #this will happen often if levels was not defined
+            # iterable isn't actually an iterable, so yield it and return
+            # this will happen often if levels was not defined
             yield iterable
             return
         if isinstance(iterable, basetype):
@@ -211,9 +212,11 @@ def _collapse(iterable, basetype=basestring, levels=None):
             for sub_item in _collapse(item, basetype=basetype, levels=levels):
                 yield sub_item
     else:
-        #levels is defined but < 0, which means we don't want to flatten any further
+        # levels is defined but <0, which means
+        # we don't want to flatten any further
         yield iterable
         return
+
 
 def repeatfunc(func, times=None, *args):
     """Repeat calls to func with specified arguments.
