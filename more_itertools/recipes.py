@@ -18,7 +18,7 @@ __all__ = ['take', 'tabulate', 'consume', 'nth', 'quantify', 'padnone',
            'grouper', 'roundrobin', 'powerset', 'unique_everseen',
            'unique_justseen', 'iter_except', 'random_product',
            'random_permutation', 'random_combination',
-           'random_combination_with_replacement']
+           'random_combination_with_replacement', 'collapse']
 
 
 def take(n, iterable):
@@ -153,6 +153,55 @@ def flatten(listOfLists):
     """
     return chain.from_iterable(listOfLists)
 
+
+def collapse(iterable, basetype=basestring, levels=None):
+    """Flatten an iterable containing some iterables (themselves containing
+    some iterables, etc.) into non-iterable types, strings, elements
+    matching ``isinstance(element, basetype)``, and elements that are
+    ``levels`` levels down.
+
+    >>> list(collapse([[1], [2], [3, 4], [5]]))
+    [1, 2, 3, 4, 5]
+    >>> list(collapse([[1], [2], [3, 4], [5]], levels=0))
+    [[1], [2], [3, 4], [5]]
+    >>> list(collapse([[1], [2], [3, 4], [5]], levels=1))
+    [1, 2, 3, 4, 5]
+    >>> list(collapse([[1], 2, [[3], 4], [[[5]]]]))
+    [1, 2, 3, 4, 5]
+    >>> list(collapse([[1], 2, [[3], 4], [[[5]]]], levels=2))
+    [1, 2, 3, 4, [5]]
+    >>> list(collapse((1, [2], (3, [4, (5,)])), list))
+    [1, [2], 3, [4, (5,)]]
+    """
+    #flatten() is really fast, so use it if possible
+    if levels == 1:
+        if not isinstance(iterable, basetype):
+            return flatten(iterable)
+    return _collapse(iterable, basetype=basetype, levels=levels)
+
+
+def _collapse(iterable, basetype=basestring, levels=None):
+    if levels is None or levels >= 0:
+        try:
+            # fast way to confirm if iterable is actually an iterable
+            iter(iterable)
+        except TypeError:
+            #iterable isn't actually an iterable, so yield it and return
+            #this will happen often if levels was not defined
+            yield iterable
+            return
+        if isinstance(iterable, basetype):
+            yield iterable
+            return
+        if levels is not None:
+            levels -= 1
+        for item in iterable:
+            for sub_item in _collapse(item, basetype=basetype, levels=levels):
+                yield sub_item
+    else:
+        #levels is defined but < 0, which means we don't want to flatten any further
+        yield iterable
+        return
 
 def repeatfunc(func, times=None, *args):
     """Repeat calls to func with specified arguments.
