@@ -174,10 +174,22 @@ def collapse(iterable, basetype=basestring, levels=None):
     [1, [2], 3, [4, (5,)]]
     """
     #flatten() is really fast, so use it if possible
+    gen = None
+    i = 0
     if levels == 1:
         if not isinstance(iterable, basetype):
-            return flatten(iterable)
-    return _collapse(iterable, basetype=basetype, levels=levels)
+            gen = flatten(iterable)
+            try:
+                for next in gen:
+                    yield next
+                return
+            except TypeError:
+                #flatten can't handle this iterable anymore, so let _collapse try
+                pass
+    gen = _collapse(iterable, basetype=basetype, levels=levels)
+    for next in gen:
+        yield next
+
 
 
 def _collapse(iterable, basetype=basestring, levels=None):
