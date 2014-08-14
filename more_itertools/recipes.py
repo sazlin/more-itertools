@@ -19,7 +19,7 @@ __all__ = ['take', 'tabulate', 'consume', 'nth', 'quantify', 'padnone',
            'unique_justseen', 'iter_except', 'random_product',
            'random_permutation', 'random_combination',
            'random_combination_with_replacement', 'collapse',
-           'flatten_2', 'flatten_3', 'flatten_4', 'collapse2']
+           'flatten_2', 'flatten_3', 'flatten_4', 'collapse2', 'collapse3']
 
 
 def take(n, iterable):
@@ -264,17 +264,17 @@ def collapse3(iterable, basetype=basestring, levels=None):
     matching ``isinstance(element, basetype)``, and elements that are
     ``levels`` levels down.
 
-    >>> list(collapse2([[1], [2], [3, 4], [5]]))
+    >>> list(collapse3([[1], [2], [3, 4], [5]]))
     [1, 2, 3, 4, 5]
-    >>> list(collapse2([[1], [2], [3, 4], [5]], levels=0))
+    >>> list(collapse3([[1], [2], [3, 4], [5]], levels=0))
     [[1], [2], [3, 4], [5]]
-    >>> list(collapse2([[1], [2], [3, 4], [5]], levels=1))
+    >>> list(collapse3([[1], [2], [3, 4], [5]], levels=1))
     [1, 2, 3, 4, 5]
-    >>> list(collapse2([[1], 2, [[3], 4], [[[5]]]]))
+    >>> list(collapse3([[1], 2, [[3], 4], [[[5]]]]))
     [1, 2, 3, 4, 5]
-    >>> list(collapse2([[1], 2, [[3], 4], [[[5]]]], levels=2))
+    >>> list(collapse3([[1], 2, [[3], 4], [[[5]]]], levels=2))
     [1, 2, 3, 4, [5]]
-    >>> list(collapse2((1, [2], (3, [4, (5,)])), list))
+    >>> list(collapse3((1, [2], (3, [4, (5,)])), list))
     [1, [2], 3, [4, (5,)]]
     """
     #flatten() is really fast, so use it if possible
