@@ -19,7 +19,8 @@ __all__ = ['take', 'tabulate', 'consume', 'nth', 'quantify', 'padnone',
            'unique_justseen', 'iter_except', 'random_product',
            'random_permutation', 'random_combination',
            'random_combination_with_replacement', 'collapse',
-           'flatten_2', 'flatten_3', 'flatten_4', 'collapse2', 'collapse3']
+           'flatten_2', 'flatten_3', 'flatten_4', 'collapse2', 'collapse3',
+           'collapse4']
 
 
 def take(n, iterable):
@@ -296,6 +297,48 @@ def _collapse3(iterable, basetype=basestring, levels=None):
         yield iterable
         return
 
+def collapse4(iterable, basetype=basestring, levels=None):
+    """Flatten an iterable containing some iterables (themselves containing
+    some iterables, etc.) into non-iterable types, strings, elements
+    matching ``isinstance(element, basetype)``, and elements that are
+    ``levels`` levels down.
+
+    >>> list(collapse4([[1], [2], [3, 4], [5]]))
+    [1, 2, 3, 4, 5]
+    >>> list(collapse4([[1], [2], [3, 4], [5]], levels=0))
+    [[1], [2], [3, 4], [5]]
+    >>> list(collapse4([[1], [2], [3, 4], [5]], levels=1))
+    [1, 2, 3, 4, 5]
+    >>> list(collapse4([[1], 2, [[3], 4], [[[5]]]]))
+    [1, 2, 3, 4, 5]
+    >>> list(collapse4([[1], 2, [[3], 4], [[[5]]]], levels=2))
+    [1, 2, 3, 4, [5]]
+    >>> list(collapse4((1, [2], (3, [4, (5,)])), list))
+    [1, [2], 3, [4, (5,)]]
+    """
+    #flatten() is really fast, so use it if possible
+    if levels == 1:
+        if not isinstance(iterable, basetype):
+            return flatten(iterable)
+    return _collapse4(iterable, basetype=basetype, levels=levels)
+
+
+def _collapse4(iterable, basetype=basestring, levels=None):
+    if levels is None or levels >= 0:
+        if not hasattr(iterable, '__iter__'):
+            yield iterable
+            return
+        if isinstance(iterable, basetype):
+            yield iterable
+            return
+        if levels is not None:
+            levels -= 1
+        for item in iterable:
+            for sub_item in _collapse4(item, basetype=basetype, levels=levels):
+                yield sub_item
+    else:
+        yield iterable
+        return
 
 def collapse(iterable, basetype=basestring, levels=None):
     """Flatten an iterable containing some iterables (themselves containing

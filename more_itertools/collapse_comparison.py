@@ -5,13 +5,14 @@ from recipes import flatten_4
 from recipes import collapse
 from recipes import collapse2
 from recipes import collapse3
+from recipes import collapse4
 import timeit
 if __name__ == "__main__":
     num_repeat = 5
     number = 1000
     setup = """
 from recipes import flatten, flatten_2, flatten_3, flatten_4
-from recipes import collapse, collapse2, collapse3
+from recipes import collapse, collapse2, collapse3, collapse4
 f0 = [[0, 1, 2], [3, 4, 5]]
 f1 = [[0, [1, 2]], [[3, 4], 5]]
     """
@@ -30,6 +31,7 @@ f1 = [[0, [1, 2]], [[3, 4], 5]]
         print "collapse:   ", list(collapse(fs[i]))
         print "collapse2:  ", list(collapse2(fs[i]))
         print "collapse3:  ", list(collapse3(fs[i]))
+        print "collapse4:  ", list(collapse4(fs[i]))
         print '\n===Create generator (1000 times, in nanoseconds)==='
         print "flatten:  ",
         print min(timeit.repeat(
@@ -77,6 +79,14 @@ f1 = [[0, [1, 2]], [[3, 4], 5]]
         print "collapse3: ",
         print min(timeit.repeat(
             stmt='collapse3(' + test_iterable + ')',
+            setup=setup,
+            number=number,
+            repeat=num_repeat
+        )) * 1000
+
+        print "collapse4: ",
+        print min(timeit.repeat(
+            stmt='collapse4(' + test_iterable + ')',
             setup=setup,
             number=number,
             repeat=num_repeat
@@ -132,6 +142,13 @@ f1 = [[0, [1, 2]], [[3, 4], 5]]
             number=number,
             repeat=num_repeat
         )) * 1000
+        print "collapse4:",
+        print min(timeit.repeat(
+            stmt='list(collapse4(' + test_iterable + '))',
+            setup=setup,
+            number=number,
+            repeat=num_repeat
+        )) * 1000
         print "collapse2 w/ levels = 0:",
         print min(timeit.repeat(
             stmt='list(collapse2(' + test_iterable + ', levels=0))',
@@ -146,6 +163,13 @@ f1 = [[0, [1, 2]], [[3, 4], 5]]
             number=number,
             repeat=num_repeat
         )) * 1000
+        print "collapse4 w/ levels = 0:",
+        print min(timeit.repeat(
+            stmt='list(collapse4(' + test_iterable + ', levels=0))',
+            setup=setup,
+            number=number,
+            repeat=num_repeat
+        )) * 1000
         print "collapse2 w/ levels = 1:",
         print min(timeit.repeat(
             stmt='list(collapse2(' + test_iterable + ', levels=1))',
@@ -156,6 +180,13 @@ f1 = [[0, [1, 2]], [[3, 4], 5]]
         print "collapse3 w/ levels = 1:",
         print min(timeit.repeat(
             stmt='list(collapse3(' + test_iterable + ', levels=1))',
+            setup=setup,
+            number=number,
+            repeat=num_repeat
+        )) * 1000
+        print "collapse4 w/ levels = 1:",
+        print min(timeit.repeat(
+            stmt='list(collapse4(' + test_iterable + ', levels=1))',
             setup=setup,
             number=number,
             repeat=num_repeat
