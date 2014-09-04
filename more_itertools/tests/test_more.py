@@ -169,6 +169,9 @@ class TestCollapse(TestCase):
     def test_collapse_to_string(self):
         l = [["s1"], "s2", [["s3"], "s4"], [[["s5"]]]]
         eq_(list(collapse(l)), ["s1", "s2", "s3", "s4", "s5"])
+    def test_collapse_string(self):
+        s = "This is a test string"
+        eq_(list(collapse(s)), [s])
     def test_collapse_flatten(self):
         l = [[1], [2], [[3], 4], [[[5]]]]
         eq_(list(collapse(l, levels=1)), list(flatten(l)))
