@@ -194,21 +194,15 @@ def collapse(iterable, basetype=basestring, levels=None):
 
 
 def _collapse(iterable, basetype=basestring, levels=None):
-    if levels is None or levels >= 0:
-        if not hasattr(iterable, '__iter__'):
-            yield iterable
-            return
-        if isinstance(iterable, basetype):
-            yield iterable
-            return
+    if (levels is None or levels >= 0) and \
+        not isinstance(iterable, basetype) and hasattr(iterable, '__iter__'):
         if levels is not None:
             levels -= 1
         for item in iterable:
             for sub_item in _collapse(item, basetype=basetype, levels=levels):
                 yield sub_item
     else:
-        # levels is defined but <0, which means
-        # we don't want to flatten any further
+        #levels is defined but < 0, which means we don't want to flatten any further
         yield iterable
         return
 
